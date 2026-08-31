@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JavaScript in 10 — a daily micro-course</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>JavaScript in 10</h1>
+        <p>30 daily lessons. 10 minutes each. Learn → try it → quick check → done.</p>
+      </div>
+      <div id="streak-badge">Start your streak today</div>
+    </header>
+
+    <div class="progress-shell">
+      <div id="progress-bar-fill"></div>
+    </div>
+    <p id="progress-label">0 / 30 lessons complete</p>
+
+    <div id="dashboard"></div>
+    <div id="lesson-view" hidden></div>
+
+    <footer>
+      <button id="reset-btn">Reset progress</button>
+    </footer>
+  </div>
+
+  <script src="lessons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
