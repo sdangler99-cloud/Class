@@ -800,5 +800,747 @@ console.log(summary);
       correct: 1,
       explain: "Applying concepts in a real (even small) project cements learning far better than reading alone."
     }
+  },
+  {
+    day: 31,
+    title: "Classes",
+    minutes: 10,
+    learn: [
+      "A class is a template for creating objects with shared structure and behavior. Define one with <code>class Name { constructor(...) { ... } method() { ... } }</code>, then create instances with <code>new Name(...)</code>.",
+      "The <code>constructor</code> method runs automatically when you create an instance with <code>new</code>, and is where you set up initial properties."
+    ],
+    example: `class Dog {
+  constructor(name) {
+    this.name = name;
+  }
+  bark() {
+    console.log(this.name + " says woof!");
+  }
+}
+
+const rex = new Dog("Rex");
+rex.bark(); // "Rex says woof!"`,
+    quiz: {
+      q: "What runs automatically when you create a new instance with `new ClassName()`?",
+      choices: ["The first method defined", "The constructor", "Nothing runs automatically", "The class declaration itself"],
+      correct: 1,
+      explain: "The constructor method runs immediately, letting you set up the new instance's initial state."
+    }
+  },
+  {
+    day: 32,
+    title: "Inheritance",
+    minutes: 10,
+    learn: [
+      "<code>extends</code> lets one class inherit properties and methods from another, avoiding duplicate code between related types.",
+      "<code>super(...)</code> calls the parent class's constructor, and <code>super.method()</code> calls a parent's method from inside an overriding one."
+    ],
+    example: `class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  speak() {
+    console.log(this.name + " makes a sound.");
+  }
+}
+
+class Cat extends Animal {
+  speak() {
+    super.speak();
+    console.log(this.name + " meows.");
+  }
+}
+
+new Cat("Whiskers").speak();`,
+    quiz: {
+      q: "What does `super()` do inside a subclass's constructor?",
+      choices: ["Creates a new subclass", "Calls the parent class's constructor", "Deletes the parent class", "Nothing, it's optional decoration"],
+      correct: 1,
+      explain: "super() runs the parent class's constructor, letting the subclass build on its setup."
+    }
+  },
+  {
+    day: 33,
+    title: "Getters, Setters & Static Members",
+    minutes: 10,
+    learn: [
+      "Getters (<code>get</code>) and setters (<code>set</code>) let you run code when a property is read or written, while still using normal property syntax (<code>obj.prop</code>, not <code>obj.prop()</code>).",
+      "<code>static</code> methods/properties belong to the class itself, not to instances — useful for utility functions related to the class."
+    ],
+    example: `class Circle {
+  constructor(radius) {
+    this.radius = radius;
+  }
+  get area() {
+    return Math.PI * this.radius ** 2;
+  }
+  static describe() {
+    return "A circle has a radius and an area.";
+  }
+}
+
+const c = new Circle(2);
+console.log(c.area); // ~12.57, computed on read
+console.log(Circle.describe());`,
+    quiz: {
+      q: "How do you call a getter named `area` defined on a class?",
+      choices: ["circle.area()", "circle.area", "Circle.area", "get(circle.area)"],
+      correct: 1,
+      explain: "Getters are accessed like plain properties, without parentheses — the parentheses would try to call the result."
+    }
+  },
+  {
+    day: 34,
+    title: "this, call, apply & bind",
+    minutes: 10,
+    learn: [
+      "<code>this</code> depends on how a function is called, not where it's defined — that's why it can be confusing. Calling <code>obj.method()</code> sets <code>this</code> to <code>obj</code>; calling a bare function usually leaves <code>this</code> undefined (in strict mode).",
+      "<code>.call(thisArg, ...args)</code> and <code>.apply(thisArg, argsArray)</code> invoke a function immediately with a chosen <code>this</code>. <code>.bind(thisArg)</code> returns a new function permanently locked to that <code>this</code>, useful for callbacks."
+    ],
+    example: `function greet() {
+  console.log("Hi, I'm " + this.name);
+}
+
+const user = { name: "Ada" };
+
+greet.call(user);              // "Hi, I'm Ada"
+const boundGreet = greet.bind(user);
+boundGreet();                  // "Hi, I'm Ada" — this is now locked`,
+    quiz: {
+      q: "What does .bind(obj) return?",
+      choices: ["The result of calling the function immediately", "A new function permanently bound to obj as this", "undefined", "A copy of obj"],
+      correct: 1,
+      explain: "bind() doesn't call the function — it hands back a new function whose this is fixed to obj."
+    }
+  },
+  {
+    day: 35,
+    title: "JSON",
+    minutes: 10,
+    learn: [
+      "JSON (JavaScript Object Notation) is a text format for representing data — the standard way APIs send and receive structured data.",
+      "<code>JSON.stringify(value)</code> converts a JS value to a JSON string. <code>JSON.parse(text)</code> converts a JSON string back into a JS value. JSON only supports strings, numbers, booleans, null, arrays, and plain objects — not functions or undefined."
+    ],
+    example: `const user = { name: "Ada", age: 28, skills: ["JS", "Math"] };
+
+const json = JSON.stringify(user);
+console.log(json); // '{"name":"Ada","age":28,"skills":["JS","Math"]}'
+
+const parsed = JSON.parse(json);
+console.log(parsed.name); // "Ada"`,
+    quiz: {
+      q: "Which method turns a JS object into a JSON string?",
+      choices: ["JSON.parse()", "JSON.stringify()", "JSON.toString()", "Object.json()"],
+      correct: 1,
+      explain: "JSON.stringify() serializes a JS value into JSON text; JSON.parse() does the reverse."
+    }
+  },
+  {
+    day: 36,
+    title: "The Fetch API in Depth",
+    minutes: 10,
+    learn: [
+      "<code>fetch(url)</code> sends a network request and returns a Promise that resolves to a Response object. Call <code>.json()</code> on the response to parse the body as JSON (this also returns a Promise).",
+      "To send data (e.g. a POST request), pass a second options object: <code>{ method: \"POST\", headers: {...}, body: JSON.stringify(data) }</code>.",
+      "Always check <code>response.ok</code> — fetch doesn't reject on HTTP error statuses like 404 or 500, only on network failures."
+    ],
+    example: `async function createPost(title) {
+  const response = await fetch("/api/posts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title })
+  });
+
+  if (!response.ok) {
+    throw new Error("Request failed: " + response.status);
+  }
+  return response.json();
+}`,
+    quiz: {
+      q: "Does fetch() reject its promise on a 404 response?",
+      choices: ["Yes, always", "No — you must check response.ok yourself", "Only for POST requests", "Only in Node.js"],
+      correct: 1,
+      explain: "fetch() only rejects on network-level failures; a 404 or 500 still resolves successfully, so you must check response.ok."
+    }
+  },
+  {
+    day: 37,
+    title: "Array Methods: sort, some, every",
+    minutes: 10,
+    learn: [
+      "<code>.sort(compareFn)</code> sorts an array in place. Without a compare function it sorts as strings (surprising for numbers!) — pass <code>(a, b) => a - b</code> for ascending numeric sort.",
+      "<code>.some(fn)</code> returns true if at least one item matches; <code>.every(fn)</code> returns true only if all items match. Both stop early once the answer is known."
+    ],
+    example: `const nums = [10, 2, 33, 4];
+
+nums.sort();
+console.log(nums); // [10, 2, 33, 4] sorted as strings — wrong order!
+
+nums.sort((a, b) => a - b);
+console.log(nums); // [2, 4, 10, 33] — correct numeric order
+
+console.log(nums.some(n => n > 30));  // true
+console.log(nums.every(n => n > 0));  // true`,
+    quiz: {
+      q: "Why does [10, 2, 33].sort() give a surprising order?",
+      choices: ["sort() is broken", "Without a compare function, it sorts elements as strings", "Arrays can't be sorted", "It only works on strings"],
+      correct: 1,
+      explain: "The default sort converts elements to strings and compares them character by character, not numerically."
+    }
+  },
+  {
+    day: 38,
+    title: "Sets and Maps",
+    minutes: 10,
+    learn: [
+      "A <code>Set</code> stores unique values — adding a duplicate has no effect. Great for deduplicating an array: <code>[...new Set(array)]</code>.",
+      "A <code>Map</code> stores key-value pairs like an object, but keys can be any type (not just strings) and it preserves insertion order reliably."
+    ],
+    example: `const unique = [...new Set([1, 2, 2, 3, 3, 3])];
+console.log(unique); // [1, 2, 3]
+
+const scores = new Map();
+scores.set("Ada", 95);
+scores.set("Grace", 88);
+console.log(scores.get("Ada")); // 95
+console.log(scores.size);       // 2`,
+    quiz: {
+      q: "What's the easiest way to remove duplicates from an array?",
+      choices: ["array.unique()", "[...new Set(array)]", "array.dedupe()", "Object.values(array)"],
+      correct: 1,
+      explain: "Spreading the array into a Set drops duplicates automatically, and spreading it back out gives you an array again."
+    }
+  },
+  {
+    day: 39,
+    title: "Optional Chaining & Nullish Coalescing",
+    minutes: 10,
+    learn: [
+      "<code>?.</code> (optional chaining) safely accesses a nested property, returning <code>undefined</code> instead of throwing if something along the way is <code>null</code>/<code>undefined</code>: <code>user?.address?.city</code>.",
+      "<code>??</code> (nullish coalescing) returns the right-hand value only if the left is <code>null</code> or <code>undefined</code> — unlike <code>||</code>, it doesn't treat <code>0</code> or <code>\"\"</code> as \"missing\"."
+    ],
+    example: `const user = { name: "Ada" };
+
+console.log(user.address?.city); // undefined, no error
+
+const count = 0;
+console.log(count || 10); // 10 — wrong! 0 is treated as falsy
+console.log(count ?? 10); // 0 — correct, 0 is not nullish`,
+    quiz: {
+      q: "Why use ?? instead of || when a default value of 0 is valid?",
+      choices: ["There's no real difference", "|| treats 0 and \"\" as missing and replaces them; ?? only replaces null/undefined", "?? is faster to run", "|| doesn't work with numbers"],
+      correct: 1,
+      explain: "|| falls back on any falsy value, including 0 and \"\"; ?? only falls back on null or undefined."
+    }
+  },
+  {
+    day: 40,
+    title: "IIFEs & the Road to Modules",
+    minutes: 10,
+    learn: [
+      "An IIFE (Immediately Invoked Function Expression) — <code>(function () { ... })()</code> — runs once immediately and keeps its variables private, an older way to avoid polluting the global scope before modules existed.",
+      "Modern JavaScript uses modules instead: each file gets its own private scope automatically, and you explicitly <code>export</code> what other files should be able to <code>import</code>."
+    ],
+    example: `(function () {
+  const secret = "only visible in here";
+  console.log(secret);
+})();
+// console.log(secret); // ❌ Error: not defined out here`,
+    quiz: {
+      q: "What problem did IIFEs solve before ES modules existed?",
+      choices: ["Making code run faster", "Keeping variables out of the global scope", "Adding types to JavaScript", "Enabling async/await"],
+      correct: 1,
+      explain: "Wrapping code in an IIFE kept its variables private instead of leaking into the shared global scope."
+    }
+  },
+  {
+    day: 41,
+    title: "ES Modules",
+    minutes: 10,
+    learn: [
+      "<code>export</code> marks a value from a file as available to other files; <code>import</code> brings it in. <code>export default</code> marks a file's single main export.",
+      "Modules load with <code>&lt;script type=\"module\" src=\"...\"&gt;</code> in HTML, and each module file has its own scope — no global leakage."
+    ],
+    example: `// math.js
+export function add(a, b) {
+  return a + b;
+}
+export const PI = 3.14159;
+
+// main.js
+import { add, PI } from "./math.js";
+console.log(add(2, 3), PI);`,
+    quiz: {
+      q: "What does `<script type=\"module\">` enable that a regular script tag doesn't?",
+      choices: ["Nothing, it's identical", "import/export syntax, plus its own private scope", "Running the script twice", "Disabling console.log"],
+      correct: 1,
+      explain: "type=\"module\" scripts can use import/export and don't leak their top-level variables into the global scope."
+    }
+  },
+  {
+    day: 42,
+    title: "Local Storage & Session Storage",
+    minutes: 10,
+    learn: [
+      "<code>localStorage</code> saves key-value string data in the browser that persists across page reloads and browser restarts, scoped to the site's origin.",
+      "<code>sessionStorage</code> works the same way but clears when the tab closes. Both only store strings — use <code>JSON.stringify</code>/<code>JSON.parse</code> for objects."
+    ],
+    example: `localStorage.setItem("theme", "dark");
+console.log(localStorage.getItem("theme")); // "dark"
+
+const settings = { volume: 80 };
+localStorage.setItem("settings", JSON.stringify(settings));
+const loaded = JSON.parse(localStorage.getItem("settings"));
+console.log(loaded.volume); // 80`,
+    quiz: {
+      q: "What's the difference between localStorage and sessionStorage?",
+      choices: ["No difference", "sessionStorage clears when the tab closes; localStorage persists", "localStorage is faster", "sessionStorage can store objects directly"],
+      correct: 1,
+      explain: "Both share the same API, but sessionStorage is wiped when its tab closes while localStorage sticks around."
+    }
+  },
+  {
+    day: 43,
+    title: "Timers",
+    minutes: 10,
+    learn: [
+      "<code>setTimeout(fn, delay)</code> runs <code>fn</code> once after <code>delay</code> milliseconds. <code>setInterval(fn, delay)</code> runs it repeatedly every <code>delay</code> ms until stopped.",
+      "Both return an ID you can pass to <code>clearTimeout(id)</code> or <code>clearInterval(id)</code> to cancel it."
+    ],
+    example: `const id = setInterval(() => {
+  console.log("tick");
+}, 1000);
+
+setTimeout(() => {
+  clearInterval(id);
+  console.log("stopped after 5 seconds");
+}, 5000);`,
+    quiz: {
+      q: "How do you stop a running setInterval?",
+      choices: ["setInterval.stop()", "clearInterval(id) using the ID it returned", "return false from the callback", "It stops automatically after 10 runs"],
+      correct: 1,
+      explain: "setInterval returns an ID that clearInterval() uses to cancel the repeating timer."
+    }
+  },
+  {
+    day: 44,
+    title: "Debouncing & Throttling",
+    minutes: 10,
+    learn: [
+      "Debouncing delays running a function until a burst of calls has paused for a set time — useful for a search box that shouldn't fetch on every keystroke.",
+      "Throttling limits a function to run at most once per time window, no matter how often it's triggered — useful for scroll or resize handlers."
+    ],
+    example: `function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const search = debounce((query) => console.log("Searching:", query), 300);
+search("j");
+search("ja");
+search("java"); // only this call actually runs, after 300ms of silence`,
+    quiz: {
+      q: "What's debouncing useful for?",
+      choices: ["Making code run faster", "Delaying a function until rapid calls settle down, e.g. search-as-you-type", "Sorting arrays", "Handling errors"],
+      correct: 1,
+      explain: "Debouncing waits for a pause in activity before running, avoiding wasted work on every single keystroke."
+    }
+  },
+  {
+    day: 45,
+    title: "Regular Expressions",
+    minutes: 10,
+    learn: [
+      "A regular expression (regex) describes a text pattern, written between slashes: <code>/pattern/flags</code>. Use <code>.test(str)</code> to check for a match, or <code>.match()</code>/<code>.replace()</code> on strings.",
+      "Common building blocks: <code>\\d</code> (digit), <code>\\w</code> (word character), <code>+</code> (one or more), <code>*</code> (zero or more), <code>^</code>/<code>$</code> (start/end of string)."
+    ],
+    example: `const hasDigit = /\\d/;
+console.log(hasDigit.test("abc123")); // true
+
+const email = "ada@example.com";
+console.log(/^[\\w.]+@[\\w.]+\\.\\w+$/.test(email)); // true
+
+console.log("2024-01-15".replace(/-/g, "/")); // "2024/01/15"`,
+    quiz: {
+      q: "What does /\\d/.test(str) check?",
+      choices: ["If str is a number", "If str contains at least one digit", "If str is exactly one digit", "If str has no digits"],
+      correct: 1,
+      explain: ".test() returns true as soon as the pattern matches anywhere in the string — here, any single digit."
+    }
+  },
+  {
+    day: 46,
+    title: "Error Handling & Custom Errors",
+    minutes: 10,
+    learn: [
+      "<code>throw</code> raises an error, stopping execution until something catches it with <code>try/catch</code>. You can throw any value, but an <code>Error</code> object (with a <code>.message</code> and stack trace) is the convention.",
+      "Create custom error types by extending <code>Error</code> — useful for distinguishing error kinds (e.g. <code>ValidationError</code> vs <code>NetworkError</code>) in a <code>catch</code> block."
+    ],
+    example: `class ValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+function setAge(age) {
+  if (age < 0) throw new ValidationError("Age can't be negative");
+  return age;
+}
+
+try {
+  setAge(-5);
+} catch (err) {
+  console.log(err.name + ": " + err.message);
+}`,
+    quiz: {
+      q: "Why create a custom error class instead of always throwing a plain Error?",
+      choices: ["It's required by JavaScript", "It lets catch blocks distinguish different kinds of failures", "It makes code run faster", "Plain Error doesn't work with try/catch"],
+      correct: 1,
+      explain: "A named subclass (checked via instanceof or .name) lets calling code react differently to different failure types."
+    }
+  },
+  {
+    day: 47,
+    title: "The Event Loop",
+    minutes: 10,
+    learn: [
+      "JavaScript runs on a single thread with a call stack, but handles async work through the event loop: when the stack is empty, it pulls the next task from a queue and runs it.",
+      "This is why <code>setTimeout(fn, 0)</code> doesn't run immediately — it waits for the current synchronous code to finish first. Promises use a separate \"microtask queue\" that runs before regular timers."
+    ],
+    example: `console.log("1");
+setTimeout(() => console.log("2"), 0);
+Promise.resolve().then(() => console.log("3"));
+console.log("4");
+
+// Output order: 1, 4, 3, 2
+// Sync code first, then microtasks (promises), then timers`,
+    quiz: {
+      q: "In the example, why does \"3\" log before \"2\"?",
+      choices: ["Promises always run before code with no delay", "Promise callbacks (microtasks) run before setTimeout callbacks (timer tasks)", "It's random", "setTimeout(fn, 0) never actually runs"],
+      correct: 1,
+      explain: "The microtask queue (promises) is always drained before the event loop moves on to timer tasks."
+    }
+  },
+  {
+    day: 48,
+    title: "Promise.all, race & allSettled",
+    minutes: 10,
+    learn: [
+      "<code>Promise.all(promises)</code> waits for every promise to resolve and returns an array of results — but rejects immediately if any one fails.",
+      "<code>Promise.race(promises)</code> settles as soon as the first promise settles (win or lose). <code>Promise.allSettled(promises)</code> waits for all of them and reports each outcome, never rejecting."
+    ],
+    example: `const p1 = fetch("/api/user");
+const p2 = fetch("/api/posts");
+
+const [user, posts] = await Promise.all([p1, p2]);
+// If either fetch fails, Promise.all rejects immediately
+
+const results = await Promise.allSettled([p1, p2]);
+// results always resolves; each entry is { status: "fulfilled"|"rejected", ... }`,
+    quiz: {
+      q: "What's the key difference between Promise.all and Promise.allSettled?",
+      choices: ["There's no real difference", "allSettled never rejects — it reports every outcome instead", "all() is faster", "allSettled only works with two promises"],
+      correct: 1,
+      explain: "all() short-circuits on the first rejection; allSettled waits for everything and hands back each result."
+    }
+  },
+  {
+    day: 49,
+    title: "Generators & Iterators",
+    minutes: 10,
+    learn: [
+      "A generator function (<code>function*</code>) can pause and resume, yielding one value at a time with <code>yield</code> instead of returning once. Calling it returns an iterator you step through with <code>.next()</code>.",
+      "Generators are handy for lazily producing a sequence (like an infinite counter) without computing it all upfront."
+    ],
+    example: `function* countUpTo(max) {
+  let i = 1;
+  while (i <= max) {
+    yield i;
+    i++;
+  }
+}
+
+for (const n of countUpTo(3)) {
+  console.log(n); // 1, 2, 3
+}`,
+    quiz: {
+      q: "What keyword pauses a generator function and produces a value?",
+      choices: ["return", "pause", "yield", "break"],
+      correct: 2,
+      explain: "yield hands back a value and pauses the generator right there until .next() is called again."
+    }
+  },
+  {
+    day: 50,
+    title: "Working with Dates",
+    minutes: 10,
+    learn: [
+      "<code>new Date()</code> creates the current date/time. <code>new Date(2024, 0, 15)</code> creates a specific one — months are 0-indexed, so January is 0!",
+      "Useful methods: <code>.getFullYear()</code>, <code>.getMonth()</code>, <code>.getDate()</code>, <code>.getDay()</code> (weekday), and <code>.getTime()</code> (milliseconds since 1970, handy for comparing dates)."
+    ],
+    example: `const now = new Date();
+console.log(now.getFullYear());
+
+const bday = new Date(2024, 0, 15); // January 15, 2024
+console.log(bday.getDate());  // 15
+console.log(bday.getMonth()); // 0 (January)
+
+const msDiff = now.getTime() - bday.getTime();
+console.log(Math.floor(msDiff / 86400000) + " days apart");`,
+    quiz: {
+      q: "In `new Date(2024, 0, 15)`, what month does 0 represent?",
+      choices: ["Invalid — months start at 1", "January", "December", "The current month"],
+      correct: 1,
+      explain: "JavaScript's Date months are 0-indexed: 0 is January, 11 is December."
+    }
+  },
+  {
+    day: 51,
+    title: "Form Validation in the DOM",
+    minutes: 10,
+    learn: [
+      "Listen for a form's <code>submit</code> event, and call <code>event.preventDefault()</code> to stop the page from reloading so you can validate first.",
+      "Check field values via <code>.value</code>, and give feedback by setting <code>.textContent</code> on an error element or toggling a CSS class — never trust client-side validation alone; the server must also validate."
+    ],
+    example: `const form = document.querySelector("#signup");
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = document.querySelector("#email").value;
+
+  if (!email.includes("@")) {
+    document.querySelector("#error").textContent = "Enter a valid email";
+    return;
+  }
+  console.log("Submitting:", email);
+});`,
+    quiz: {
+      q: "Why call event.preventDefault() in a submit handler?",
+      choices: ["It's required syntax", "It stops the default page reload so you can validate/handle the data in JS first", "It clears the form", "It submits the form faster"],
+      correct: 1,
+      explain: "Without it, the browser's default full-page form submission happens before your validation ever runs."
+    }
+  },
+  {
+    day: 52,
+    title: "Fetching & Rendering a List",
+    minutes: 10,
+    learn: [
+      "A common real-world pattern: fetch data, then build DOM elements from it in a loop, then render them all at once.",
+      "Building an HTML string with <code>.map().join(\"\")</code> and setting <code>.innerHTML</code> once is usually simpler than creating each element individually — just make sure the data isn't untrusted user input (see Day 24)."
+    ],
+    example: `async function renderUsers() {
+  const response = await fetch("/api/users");
+  const users = await response.json();
+
+  const html = users
+    .map(u => \`<li>\${u.name} — \${u.email}</li>\`)
+    .join("");
+
+  document.querySelector("#user-list").innerHTML = html;
+}`,
+    quiz: {
+      q: "Why build one HTML string with map().join() instead of updating innerHTML in a loop?",
+      choices: ["It's required by fetch()", "Updating the DOM once is simpler and avoids repeated re-renders", "innerHTML only works once", "It's the only way to use fetch"],
+      correct: 1,
+      explain: "Setting innerHTML once with the full list avoids re-rendering the DOM on every single item."
+    }
+  },
+  {
+    day: 53,
+    title: "Debugging with DevTools",
+    minutes: 10,
+    learn: [
+      "The Sources tab lets you set breakpoints — click a line number to pause execution there and inspect variables, instead of sprinkling <code>console.log</code> everywhere.",
+      "Adding a <code>debugger;</code> statement in your code does the same thing: it pauses execution right there whenever DevTools is open.",
+      "The Console tab isn't just for console.log — you can run any JavaScript in it, live, against the current page."
+    ],
+    example: `function total(items) {
+  debugger; // execution pauses here when DevTools is open
+  return items.reduce((sum, item) => sum + item.price, 0);
+}`,
+    quiz: {
+      q: "What does the `debugger;` statement do?",
+      choices: ["Deletes bugs from the code", "Pauses execution there when DevTools is open, like a breakpoint", "Logs an error", "Nothing, in production or development"],
+      correct: 1,
+      explain: "It acts as a breakpoint written directly in code, pausing execution there whenever DevTools is open."
+    }
+  },
+  {
+    day: 54,
+    title: "Code Style & Linting",
+    minutes: 10,
+    learn: [
+      "A linter (like ESLint) analyzes your code for likely bugs and style issues — e.g. using a variable before defining it, or comparing with <code>==</code> instead of <code>===</code> — before you ever run it.",
+      "Consistent style (naming, spacing, quote style) isn't about taste for its own sake — it means any file in a codebase feels familiar, which matters far more once more than one person touches the code."
+    ],
+    example: `// A linter would flag issues like these:
+if (x = 5) { }        // assignment instead of comparison — likely a bug
+let count = count + 1; // used before it's declared
+var y = 10;            // prefer let/const over var`,
+    quiz: {
+      q: "What's a linter's main job?",
+      choices: ["Making code run faster", "Automatically flagging likely bugs and style issues in your code", "Compiling JavaScript to another language", "Minifying files for production"],
+      correct: 1,
+      explain: "Linters statically analyze code to catch likely mistakes and enforce consistent style, before you run anything."
+    }
+  },
+  {
+    day: 55,
+    title: "Testing Basics",
+    minutes: 10,
+    learn: [
+      "A unit test runs a small piece of code and checks the result matches what you expect — catching bugs automatically instead of manually re-checking by hand every time you change something.",
+      "Testing libraries like Jest or Vitest give you <code>describe</code>/<code>test</code> blocks and assertions like <code>expect(result).toBe(expected)</code>, but the core idea is simple enough to write by hand too."
+    ],
+    example: `function add(a, b) {
+  return a + b;
+}
+
+function assertEqual(actual, expected, label) {
+  if (actual !== expected) {
+    throw new Error(label + " failed: got " + actual + ", expected " + expected);
+  }
+  console.log(label + " passed");
+}
+
+assertEqual(add(2, 3), 5, "add(2,3)");`,
+    quiz: {
+      q: "What's the main benefit of writing tests?",
+      choices: ["Tests make code run faster", "They catch regressions automatically instead of manual re-checking", "Tests are required to publish to npm", "They replace the need for code review"],
+      correct: 1,
+      explain: "Automated tests catch broken behavior the moment it's introduced, instead of relying on someone noticing later."
+    }
+  },
+  {
+    day: 56,
+    title: "Recursion",
+    minutes: 10,
+    learn: [
+      "A recursive function calls itself to solve a smaller version of the same problem, until it reaches a base case that stops the recursion.",
+      "Every recursive function needs a base case (when to stop) and progress toward it each call — without both, it recurses forever and crashes with a stack overflow."
+    ],
+    example: `function factorial(n) {
+  if (n <= 1) return 1;        // base case
+  return n * factorial(n - 1); // calls itself with a smaller problem
+}
+
+console.log(factorial(5)); // 120`,
+    quiz: {
+      q: "What happens if a recursive function has no base case?",
+      choices: ["It runs once and stops", "It calls itself forever and crashes (stack overflow)", "JavaScript automatically adds one", "It returns undefined"],
+      correct: 1,
+      explain: "Without a stopping condition, the function keeps calling itself until the call stack runs out of room."
+    }
+  },
+  {
+    day: 57,
+    title: "Currying & Composition",
+    minutes: 10,
+    learn: [
+      "Currying transforms a function that takes multiple arguments into a chain of functions that each take one: <code>add(2)(3)</code> instead of <code>add(2, 3)</code> — useful for creating specialized versions of a function.",
+      "Function composition combines small functions into a pipeline, where each one's output feeds the next's input — a common pattern in functional-style code."
+    ],
+    example: `const add = a => b => a + b;
+const add5 = add(5); // a specialized version
+console.log(add5(3)); // 8
+
+const double = x => x * 2;
+const increment = x => x + 1;
+const compose = (f, g) => x => f(g(x));
+
+const doubleThenIncrement = compose(increment, double);
+console.log(doubleThenIncrement(5)); // 11`,
+    quiz: {
+      q: "What does `add(5)` return in `const add = a => b => a + b;`?",
+      choices: ["8", "A new function waiting for b", "undefined", "An error"],
+      correct: 1,
+      explain: "Calling add(5) only supplies the first argument, so it returns the inner arrow function still waiting for b."
+    }
+  },
+  {
+    day: 58,
+    title: "Module & Singleton Patterns",
+    minutes: 10,
+    learn: [
+      "The module pattern groups related state and functions together, exposing only what's needed — modern ES modules give you this automatically per file.",
+      "The singleton pattern ensures only one instance of something ever exists, useful for shared state like app configuration."
+    ],
+    example: `const AppConfig = (() => {
+  let theme = "dark";
+  return {
+    getTheme: () => theme,
+    setTheme: (t) => { theme = t; }
+  };
+})();
+
+AppConfig.setTheme("light");
+console.log(AppConfig.getTheme()); // "light"
+// theme itself is private — can't be accessed directly from outside`,
+    quiz: {
+      q: "What does the singleton pattern guarantee?",
+      choices: ["A function runs only once", "Only one instance of something exists across the app", "Code runs faster", "No errors can occur"],
+      correct: 1,
+      explain: "Singletons centralize shared state or resources behind a single, app-wide instance."
+    }
+  },
+  {
+    day: 59,
+    title: "Performance Basics",
+    minutes: 10,
+    learn: [
+      "Avoid doing expensive work (like a DOM query or a big computation) repeatedly inside a loop — pull it out and do it once if the result doesn't change each time.",
+      "Big O notation describes how an algorithm's time grows with input size: O(n) (linear) scales fine; nested loops over the same data are often O(n²), which gets slow fast as data grows."
+    ],
+    example: `// Slow: looks up the element on every iteration
+for (let i = 0; i < 1000; i++) {
+  document.querySelector("#box").textContent = i; // repeated DOM query
+}
+
+// Faster: look it up once, then reuse it
+const box = document.querySelector("#box");
+for (let i = 0; i < 1000; i++) {
+  box.textContent = i;
+}`,
+    quiz: {
+      q: "Why is a nested loop over the same array often a performance concern?",
+      choices: ["Nested loops are always a syntax error", "It's often O(n²) — work grows quadratically as the array grows", "JavaScript doesn't support nested loops", "It only affects Node.js, not browsers"],
+      correct: 1,
+      explain: "Comparing every item against every other item means the work grows with the square of the input size."
+    }
+  },
+  {
+    day: 60,
+    title: "Capstone Project",
+    minutes: 10,
+    learn: [
+      "You've now covered classes, modern syntax, async patterns, browser storage and APIs, functional patterns, debugging, and testing — genuinely enough to build a real small application end-to-end.",
+      "Pick one and build it fully: a weather app (fetch a public API, render results, handle loading/error states), an expense tracker (add/remove entries, localStorage persistence, running total), or a quiz app like this one. Scope it small enough to finish in a few sessions — finished and small beats ambitious and abandoned.",
+      "When you get stuck, that's the job: break the problem into the smallest piece that could possibly work, get that piece working, then build outward from it."
+    ],
+    example: `// A tiny scaffold to start an expense tracker from
+const expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+
+function addExpense(name, amount) {
+  expenses.push({ name, amount, date: new Date().toISOString() });
+  localStorage.setItem("expenses", JSON.stringify(expenses));
+}
+
+function total() {
+  return expenses.reduce((sum, e) => sum + e.amount, 0);
+}
+
+addExpense("Coffee", 4.5);
+console.log("Total spent:", total());`,
+    quiz: {
+      q: "What's the recommended way to scope your capstone project?",
+      choices: ["Build the most ambitious app you can imagine", "Pick something small enough to actually finish, then build outward from a working piece", "Copy an existing app exactly", "Skip building and just read more docs"],
+      correct: 1,
+      explain: "A small, finished project beats an ambitious, abandoned one — and gives you a real working foundation to extend."
+    }
   }
 ];
