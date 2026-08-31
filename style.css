@@ -86,6 +86,11 @@ header.top p {
   gap: 12px;
 }
 
+#dashboard[hidden],
+#lesson-view[hidden] {
+  display: none;
+}
+
 .tile {
   background: var(--panel);
   border: 1px solid var(--border);
